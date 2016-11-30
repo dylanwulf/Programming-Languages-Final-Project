@@ -1,7 +1,13 @@
-#lang R5RS
+;#lang R5RS
 
 (define (evaluate board)
-  (count-total (map vector->list (vector->list board)) 0))
+  (cond
+    ((= (number-moveable board 'o 0 0) 0)
+     100)
+    ((= (number-moveable board 'x 0 0) 0)
+     0)
+    (else (/ (number-moveable board 'x 0 0)
+     (number-moveable board 'o 0 0)))))
 
 (define (count-total board total)
   (cond ((null? board) total)
@@ -13,7 +19,43 @@
     ((eqv? (car line) type) (count (cdr line) type (+ total 1)))
     (else (count (cdr line) type total))))
 
-(define (makeboard)
+(define (number-moveable board type rowIndex total)
+  (cond ((= rowIndex 8) total)
+        (else (number-moveable board type (+ rowIndex 1) (+ total (number-moveable-row board type rowIndex 0 0))))))
+
+(define (number-moveable-row board type rowIndex colIndex total)
+  (cond
+    ((> colIndex 7) total)
+    ((eqv? type (vector-ref (vector-ref board rowIndex) colIndex))
+     (cond
+       ((and
+         (< (+ rowIndex 2) 8)
+         (eqv? '- (vector-ref (vector-ref board (+ rowIndex 2)) colIndex))
+         (not (eqv? '- (vector-ref (vector-ref board (+ rowIndex 1)) colIndex))))
+        ;(display rowIndex)(display colIndex)(display "First")(newline)
+        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+       ((and
+         (> (- rowIndex 2) -1)
+         (eqv? '- (vector-ref (vector-ref board (- rowIndex 2)) colIndex))
+         (not (eqv? '- (vector-ref (vector-ref board (- rowIndex 1)) colIndex))))
+        ;(display rowIndex)(display colIndex)(display "Second")(newline)
+        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+       ((and
+         (< (+ colIndex 2) 8)
+         (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 2)))
+         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 1)))))
+        ;(display rowIndex)(display colIndex)(display "Third")(newline)
+        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+       ((and
+         (> (- colIndex 2) -1)
+         (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))
+         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 1)))))
+        ;(display rowIndex)(display colIndex)(display "Fourth")(newline)
+        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+       (else (number-moveable-row board type rowIndex (+ colIndex 2) total))))
+    (else (number-moveable-row board type rowIndex (+ colIndex 1) total))))
+
+(define makeboard
   (vector
      (list->vector '(O X O X O X O X))
      (list->vector '(X O X O X O X O))
