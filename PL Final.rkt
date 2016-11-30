@@ -99,8 +99,8 @@
         ((= depth 0) ev)
         (else
           (if (eq? whose-turn 'X)
-              (list-max (map (lambda (b) (minimax (b depth-1 'O))) (child-boards board whose-turn)))
-              (list-min (map (lambda (b) (minimax (b depth-1 'X))) (child-boards board whose-turn)))
+              (list-max (map (lambda (b) (minimax (b (- depth 1) 'O))) (child-boards board whose-turn)))
+              (list-min (map (lambda (b) (minimax (b (- depth 1) 'X))) (child-boards board whose-turn)))
           )
         )
       )
