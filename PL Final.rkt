@@ -76,23 +76,22 @@
          (< (+ rowIndex 2) 8)
          (eqv? '- (vector-ref (vector-ref board (+ rowIndex 2)) colIndex))
          (not (eqv? '- (vector-ref (vector-ref board (+ rowIndex 1)) colIndex))))
-        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list (+ rowIndex 2) colIndex))))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list colIndex rowIndex) (list colIndex (+ rowIndex 2)))))))
        ((and
          (> (- rowIndex 2) -1)
          (eqv? '- (vector-ref (vector-ref board (- rowIndex 2)) colIndex))
          (not (eqv? '- (vector-ref (vector-ref board (- rowIndex 1)) colIndex))))
-        (display "Here too")(newline)
-        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list (- rowIndex 2) colIndex))))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list colIndex rowIndex) (list colIndex (- rowIndex 2)))))))
        ((and
          (< (+ colIndex 2) 8)
          (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 2)))
          (not (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 1)))))
-        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list rowIndex (+ colIndex 2)))))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list colIndex rowIndex) (list (+ colIndex 2) rowIndex))))))
        ((and
          (> (- colIndex 2) -1)
          (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))
-         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))))
-        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append moveList (list (list (list rowIndex colIndex) (list rowIndex (- colIndex 2)))))))
+         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 1)))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list colIndex rowIndex) (list (- colIndex 2) rowIndex))))))
        (else (possible-moves-row board whose-turn rowIndex (+ colIndex 2) movesList))))
     (else (possible-moves-row board whose-turn rowIndex (+ colIndex 1) movesList))))
 
@@ -100,7 +99,7 @@
 ;for the current player
 (define child-boards
   (lambda (board whose-turn)
-    (map (lambda (mv) (move (board-copy board) mv)) (possible-moves board whose-turn))
+    (map (lambda (mv) (move (board-copy board) mv)) (possible-moves board whose-turn 0 '()))
   )
 )
 
@@ -151,7 +150,7 @@
      (list->vector '(O X O X O X O X))
      (list->vector '(X O X O X O X O))
      (list->vector '(O X O X O X O X))
-     (list->vector '(X O X O X O X O))))
+     (list->vector '(X - X O X - X O))))
 
 (define (putpiece board x y p)
   (vector-set! (vector-ref board y) x p)
