@@ -62,11 +62,39 @@
 )
 
 ;Returns a list of all possible moves that can be made by the current player
-(define possible-moves
-  (lambda (board whose-turn)
-    0
-  )
-)
+(define (possible-moves board whose-turn rowIndex movesList)
+  (cond ((= rowIndex 8) movesList)
+        (else (possible-moves board whose-turn (+ rowIndex 1) (append movesList (possible-moves-row board whose-turn rowIndex 0 '()))))))
+
+;Returns a list of all possible moves that can be made by the current player in a row
+(define (possible-moves-row board whose-turn rowIndex colIndex movesList)
+  (cond
+    ((> colIndex 7) movesList)
+    ((eqv? whose-turn (vector-ref (vector-ref board rowIndex) colIndex))
+     (cond
+       ((and
+         (< (+ rowIndex 2) 8)
+         (eqv? '- (vector-ref (vector-ref board (+ rowIndex 2)) colIndex))
+         (not (eqv? '- (vector-ref (vector-ref board (+ rowIndex 1)) colIndex))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list (+ rowIndex 2) colIndex))))))
+       ((and
+         (> (- rowIndex 2) -1)
+         (eqv? '- (vector-ref (vector-ref board (- rowIndex 2)) colIndex))
+         (not (eqv? '- (vector-ref (vector-ref board (- rowIndex 1)) colIndex))))
+        (display "Here too")(newline)
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list (- rowIndex 2) colIndex))))))
+       ((and
+         (< (+ colIndex 2) 8)
+         (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 2)))
+         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 1)))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append movesList (list (list (list rowIndex colIndex) (list rowIndex (+ colIndex 2)))))))
+       ((and
+         (> (- colIndex 2) -1)
+         (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))
+         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))))
+        (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append moveList (list (list (list rowIndex colIndex) (list rowIndex (- colIndex 2)))))))
+       (else (possible-moves-row board whose-turn rowIndex (+ colIndex 2) movesList))))
+    (else (possible-moves-row board whose-turn rowIndex (+ colIndex 1) movesList))))
 
 ;Returns a list of all possible game boards created by doing all possible moves
 ;for the current player
