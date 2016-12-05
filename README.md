@@ -54,6 +54,6 @@ comparing all of the possible outcomes 3 moves out. It uses a static evaluation
 function which returns a ratio of the number of computer player moveable pieces
 by the number of opponent's moveable pieces. Our research indicated that this
 evaluation function yielded the highest chance of success. Finally, the
-Alpha-Beta pruning algorithm determined whether it was possible for a branch
-to be a better choice than a current one. If it was not, then that branch would
-not be explored.
+Alpha-Beta pruning algorithm determined whether it was possible for a branch's
+minimum node to be higher than an already-explored branch's minimum. If not,
+then the branch can be 'pruned' - no longer searched.
