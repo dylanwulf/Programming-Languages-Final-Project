@@ -1,6 +1,15 @@
 ;#lang R5RS
 
+(define eval-count 0)
+(define cut-count 0)
+(define total-branches 0)
+(define times-branched 0)
+
+(define (avg-branch-factor)
+  (/ total-branches times-branched))
+
 (define (evaluate board whose-turn)
+  (set! eval-count (+ eval-count 1))
   (cond
     ((= (number-moveable board 'o 0 0) 0)
      100)
@@ -292,12 +301,3 @@
   (if turn
       (if (nomoves board) #f (play (move board (printmove (bestmove board 3))) (not turn)))
       (if (nomoves board) #t (play (move board (input)) (not turn)))))
-
-(if (play (init
-           (if (display "X1: ") (read))
-           (if (display "Y1: ") (read))
-           (if (display "X2: ") (read))
-           (if (display "Y2: ") (read)))
-      (if (equal? (if (display "X or O? ") (read)) "X") #t #f))
-    (display "You won!")
-    (display "You lost."))
