@@ -301,3 +301,12 @@
   (if turn
       (if (nomoves board) #f (play (move board (printmove (bestmove board 3))) (not turn)))
       (if (nomoves board) #t (play (move board (input)) (not turn)))))
+
+(if (play (init
+           (if (display "X1: ") (read))
+           (if (display "Y1: ") (read))
+           (if (display "X2: ") (read))
+           (if (display "Y2: ") (read)))
+      (if (equal? (if (display "X or O? ") (read)) "X") #t #f))
+    (display "You won!")
+    (display "You lost."))
