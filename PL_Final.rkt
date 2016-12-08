@@ -357,7 +357,7 @@
   (if (= turn 1) (firstmove) (secondmove)))
 
 (define (move board dp)
-  (let ((p (vector-ref (vector-ref board (caar dp)) (cadar dp))))
+  (let ((p (vector-ref (vector-ref board (cadar dp)) (caar dp))))
     (putpiece (clearline board (caar dp) (cadar dp) (caadr dp) (cadadr dp)) (caadr dp) (cadadr dp) p)))
 
 (define (inputnum n)
