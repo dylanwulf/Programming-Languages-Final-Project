@@ -324,19 +324,19 @@
                    (if (= x1 x2) vg cg)))))
 
 
-(define (firstmove piece)
+(define (firstmove)
   (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum ""))))
     (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum ""))))
-      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) piece 1 'X 'O))))
+      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
-(define (secondmove piece)
+(define (secondmove)
   (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
-        (play (putpiece b (car s) (cadr s) '-) piece 2 'O 'X)))))
+        (play (putpiece b (car s) (cadr s) '-) 2 'O 'X)))))
 
 (define (init turn)
-  (if (= turn 1) (firstmove "X") (secondmove "O")))
+  (if (= turn 1) (firstmove) (secondmove)))
 
 (define (move board dp)
   (let ((p (vector-ref (vector-ref board (caar dp)) (cadar dp))))
@@ -353,14 +353,14 @@
 (define (nomoves board turn)
   (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
 
-(define (play board piece turn us opp)
+(define (play board turn us opp)
   (printwell board)
   (if (= turn 1)
-      (if (nomoves board (if (equal? piece "X") 'X 'O)) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4 us us opp))) piece 2 us opp)))
-      (if (nomoves board (if (equal? piece "X") 'O 'X)) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) piece 1 us opp)))))
+      (if (nomoves board us) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
+      (if (nomoves board opp) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) 1 us opp)))))
 
 (if
  (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) 1 2)))
    (init turn))
- (display "You won!")
- (display "You lost."))
+ (display "We won!")
+ (display "We lost."))
