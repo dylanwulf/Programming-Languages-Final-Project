@@ -1,13 +1,18 @@
-
-
 (define eval-count 0)
 (define cut-count 0)
 (define total-branches 0)
 (define times-branched 0)
 
+;Returns average branching factor
 (define (avg-branch-factor)
   (/ total-branches times-branched))
 
+;Returns 100 if the board is a win for the player, 0 if the board is a loss for the player, and otherwise, returns
+;the ratio of player moveable pieces to opponent moveable pieces
+;board: the state of the board
+;whose-turn: 'x or 'o, depending on whose turn it is
+;us: whichever of 'x or 'o that the computer player is
+;opp: whichever of 'x or 'o that the opponent is
 (define (evaluate board whose-turn us opp)
   (set! eval-count (+ eval-count 1))
   (cond
@@ -25,41 +30,48 @@
   )
 )
 
-(define (number-moveable board type rowIndex total)
+;Returns the sum of the moveable pieces for a player in each row
+;board: the state of the board
+;whose-turn: 'x or 'o, depending on whose turn it is
+;rowIndex: the row being checked
+;total: the current sum of the moveable pieces (should be initially called as 0)
+(define (number-moveable board whose-turn rowIndex total)
   (cond ((= rowIndex 8) total)
-        (else (number-moveable board type (+ rowIndex 1) (+ total (number-moveable-row board type rowIndex 0 0))))))
+        (else (number-moveable board whose-turn (+ rowIndex 1) (+ total (number-moveable-row board whose-turn rowIndex 0 0))))))
 
-(define (number-moveable-row board type rowIndex colIndex total)
+;Returns the number of moveable pieces for a player in a row
+;board: the state of the board
+;whose-turn: 'x or 'o, depending on whose turn it is
+;rowIndex: the row being checked
+;colIndex: the column being checked
+;total: the current sum of the moveable pieces (should be initially called as 0)
+(define (number-moveable-row board whose-turn rowIndex colIndex total)
   (cond
     ((> colIndex 7) total)
-    ((eqv? type (vector-ref (vector-ref board rowIndex) colIndex))
+    ((eqv? whose-turn (vector-ref (vector-ref board rowIndex) colIndex))
      (cond
        ((and
          (< (+ rowIndex 2) 8)
          (eqv? '- (vector-ref (vector-ref board (+ rowIndex 2)) colIndex))
          (not (eqv? '- (vector-ref (vector-ref board (+ rowIndex 1)) colIndex))))
-        ;(display rowIndex)(display colIndex)(display "First")(newline)
-        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+        (number-moveable-row board whose-turn rowIndex (+ colIndex 2) (+ total 1)))
        ((and
          (> (- rowIndex 2) -1)
          (eqv? '- (vector-ref (vector-ref board (- rowIndex 2)) colIndex))
          (not (eqv? '- (vector-ref (vector-ref board (- rowIndex 1)) colIndex))))
-        ;(display rowIndex)(display colIndex)(display "Second")(newline)
-        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+        (number-moveable-row board whose-turn rowIndex (+ colIndex 2) (+ total 1)))
        ((and
          (< (+ colIndex 2) 8)
          (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 2)))
          (not (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 1)))))
-        ;(display rowIndex)(display colIndex)(display "Third")(newline)
-        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
+        (number-moveable-row board whose-turn rowIndex (+ colIndex 2) (+ total 1)))
        ((and
          (> (- colIndex 2) -1)
          (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))
          (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 1)))))
-        ;(display rowIndex)(display colIndex)(display "Fourth")(newline)
-        (number-moveable-row board type rowIndex (+ colIndex 2) (+ total 1)))
-       (else (number-moveable-row board type rowIndex (+ colIndex 2) total))))
-    (else (number-moveable-row board type rowIndex (+ colIndex 1) total))))
+        (number-moveable-row board whose-turn rowIndex (+ colIndex 2) (+ total 1)))
+       (else (number-moveable-row board whose-turn rowIndex (+ colIndex 2) total))))
+    (else (number-moveable-row board whose-turn rowIndex (+ colIndex 1) total))))
 
 ;Makes a copy of the board so that applying hypothetical moves to it
 ;won't affect the real board
