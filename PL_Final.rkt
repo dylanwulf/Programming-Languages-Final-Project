@@ -13,6 +13,12 @@
 (define (avg-branch-factor)
   (/ total-branches times-branched))
 
+;True if the specified list contains the element x, or false otherwise
+(define (contains list x)
+    (cond ((null? list) #f)
+        ((equal? (car list) x) #t)
+        (else (contains (cdr list) x))))
+
 ;Returns 100 if the board is a win for the player, 0 if the board is a loss for the player, and otherwise, returns
 ;the ratio of player moveable pieces to opponent moveable pieces
 ;board: the state of the board
@@ -363,22 +369,30 @@
 (define (inputnum n)
    (list (if (display (string-append "X" n ": ")) (- (read) 1)) (if (display (string-append "Y" n ": ")) (- 8 (read)))))
 
-;prints an error message and re-prompts the user for input if the given input is not on board. Otherwise, reads the input.
-(define (check-invalid-input n)
+;Prints an error message if the given input is not on board.
+(define (check-invalid-input)
   (let ((input (read)))
     (if (or (< input 1) (> input 8))
-       (handle-error n)
-       (- input 1))))
+       (handle-error))))
 
-(define (handle-error n)
-  (display "Invalid move. Values must be from 1 to 8.")(newline)(inputnum n))
+(define (handle-error)
+  (display "Invalid move. Values must be from 1 to 8.")(newline))
 
-;prints an error message and re-prompts the user for input if the given input is not a valid first move.
-(define (first-move-check n)
+;Prints an error message if the given input is not a valid first move.
+(define (first-move-check)
   (let ((input (read)))
     (if (not (or (= input 1) (= input 8) (= input 4) (= input 5)))
-      ((display "Invalid entry. Acceptable first moves are <1, 8>, <8, 1>, <4, 5>, and <5, 4>.")(newline)(inputnum n))
-      (- input 1))))
+      ((display "Invalid entry. Acceptable first moves are <1, 8>, <8, 1>, <4, 5>, and <5, 4>.")(newline)))))
+
+;Prints an error message if the move made is not possible.
+(define (jump-check board whose-turn)
+  (if (not (contains (possible-moves board whose-turn 0 '()) (input)))
+      ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline))))
+
+;Prints an error message if the first question is not given yes or no.
+(define (invalid-answer)
+  (if (not (or (equal? READ 'Yes) (equal? READ 'No)))
+      (display "Invalid entry. Please enter Yes if you are the first player and No if you are the second player.")))
 
 (define (input)
   (list
