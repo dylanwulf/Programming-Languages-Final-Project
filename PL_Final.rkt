@@ -3,6 +3,12 @@
 (define total-branches 0)
 (define times-branched 0)
 
+;displays end-of-game statistics
+(define (display-statistics)
+  (display "1. Number of evaluations: ")(display eval-count)
+  (display "2. Number of cuts: ")(display cut-count)
+  (display "3. Average branch factor: ")(display avg-branch-factor))
+
 ;Returns average branching factor
 (define (avg-branch-factor)
   (/ total-branches times-branched))
@@ -356,6 +362,23 @@
 
 (define (inputnum n)
    (list (if (display (string-append "X" n ": ")) (- (read) 1)) (if (display (string-append "Y" n ": ")) (- 8 (read)))))
+
+;prints an error message and re-prompts the user for input if the given input is not on board. Otherwise, reads the input.
+(define (check-invalid-input n)
+  (let ((input (read)))
+    (if (or (< input 1) (> input 8))
+       (handle-error n)
+       (- input 1))))
+
+(define (handle-error n)
+  (display "Invalid move. Values must be from 1 to 8.")(newline)(inputnum n))
+
+;prints an error message and re-prompts the user for input if the given input is not a valid first move.
+(define (first-move-check n)
+  (let ((input (read)))
+    (if (not (or (= input 1) (= input 8) (= input 4) (= input 5)))
+      ((display "Invalid entry. Acceptable first moves are <1, 8>, <8, 1>, <4, 5>, and <5, 4>.")(newline)(inputnum n))
+      (- input 1))))
 
 (define (input)
   (list
