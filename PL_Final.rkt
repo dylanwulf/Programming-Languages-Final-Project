@@ -226,8 +226,32 @@
   (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth 'o) mv)) (possible-moves board 'x 0 '()))))
 )
 
+(define (secondmovepossibilities firstmove)
+  (append
+    (if (> (car firstmove) 0)
+        (list (list (- (car firstmove) 1) (cadr firstmove)))
+        '()
+    )
+        (append
+          (if (< (car firstmove) 7)
+              (list (list (+ (car firstmove) 1) (cadr firstmove)))
+              '()
+          )
+              (append
+                (if (> (cadr firstmove) 0)
+                    (list (list (car firstmove) (- (cadr firstmove) 1)))
+                    '()
+                )
+                  (if (< (cadr firstmove) 7)
+                     (list (list (car firstmove) (+ (cadr firstmove) 1)))
+                     '()
+                  )
+              )
+        )
+  )
+)
 
-(define (secondmovechooser board)
+(define (secondmovechooser board firstmove)
   '(3 5))
 
 (define (makeboard)
@@ -302,7 +326,7 @@
 (define (secondmove piece)
   (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
-      (let ((s (secondmovechooser b)))
+      (let ((s (secondmovechooser b f)))
         (play (putpiece b (car s) (cadr s) '-) piece 2)))))
 
 (define (init turn)
