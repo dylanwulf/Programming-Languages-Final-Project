@@ -87,22 +87,26 @@
   (cond
     ((> colIndex 7) movesList)
     ((eqv? whose-turn (vector-ref (vector-ref board rowIndex) colIndex))
-       (possible-moves-row board whose-turn rowIndex (+ colIndex 2) (append-move-right board colIndex rowIndex (append-move-left board colIndex rowIndex (append-move-up board colIndex rowIndex (append-move-down board colIndex rowIndex movesList)))))
+       (possible-moves-row board whose-turn rowIndex (+ colIndex 2)
+                           (append-move-up board colIndex rowIndex colIndex rowIndex
+                                              (append-move-down board colIndex rowIndex colIndex rowIndex
+                                                                (append-move-right board colIndex rowIndex colIndex rowIndex
+                                                                                (append-move-left board colIndex rowIndex colIndex rowIndex movesList)))))
      )
     (else (possible-moves-row board whose-turn rowIndex (+ colIndex 1) movesList))))
 
 ;Attempts to append a move to the right for the specified piece.
 ;If it is possible, appends the move.
 ;If it is not possible, returns the moves list unaltered.
-(define append-move-right
-  (lambda (board colIndex rowIndex movesList)
+(define append-move-up
+  (lambda (board colIndex rowIndex origCol origRow movesList)
     (if
       (and
         (< (+ rowIndex 2) 8)
         (eqv? '- (vector-ref (vector-ref board (+ rowIndex 2)) colIndex))
         (not (eqv? '- (vector-ref (vector-ref board (+ rowIndex 1)) colIndex)))
       )
-      (append movesList (list (list (list colIndex rowIndex) (list colIndex (+ rowIndex 2)))))
+      (append-move-up board colIndex (+ 2 rowIndex) origCol origRow (append movesList (list (list (list origCol origRow) (list colIndex (+ rowIndex 2))))))
       movesList
     )
   )
@@ -111,15 +115,15 @@
 ;Attempts to append a move to the left for the specified piece.
 ;If it is possible, appends the move.
 ;If it is not possible, returns the moves list unaltered.
-(define append-move-left
-  (lambda (board colIndex rowIndex movesList)
+(define append-move-down
+  (lambda (board colIndex rowIndex origCol origRow movesList)
     (if
       (and
         (> (- rowIndex 2) -1)
         (eqv? '- (vector-ref (vector-ref board (- rowIndex 2)) colIndex))
         (not (eqv? '- (vector-ref (vector-ref board (- rowIndex 1)) colIndex)))
       )
-      (append movesList (list (list (list colIndex rowIndex) (list colIndex (- rowIndex 2)))))
+      (append-move-down board colIndex (- rowIndex 2) origCol origRow (append movesList (list (list (list origCol origRow) (list colIndex (- rowIndex 2))))))
       movesList
     )
   )
@@ -128,15 +132,15 @@
 ;Attempts to append a move upwards for the specified piece.
 ;If it is possible, appends the move.
 ;If it is not possible, returns the moves list unaltered.
-(define append-move-up
-  (lambda (board colIndex rowIndex movesList)
+(define append-move-right
+  (lambda (board colIndex rowIndex origCol origRow movesList)
     (if
       (and
         (< (+ colIndex 2) 8)
         (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 2)))
         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (+ colIndex 1))))
       )
-      (append movesList (list (list (list colIndex rowIndex) (list (+ colIndex 2) rowIndex))))
+      (append-move-right board (+ colIndex 2) rowIndex origCol origRow (append movesList (list (list (list origCol origRow) (list (+ colIndex 2) rowIndex)))))
       movesList
     )
   )
@@ -145,15 +149,15 @@
 ;Attempts to append a move downwards for the specified piece.
 ;If it is possible, appends the move.
 ;If it is not possible, returns the moves list unaltered.
-(define append-move-down
-  (lambda (board colIndex rowIndex movesList)
+(define append-move-left
+  (lambda (board colIndex rowIndex origCol origRow movesList)
     (if
       (and
         (> (- colIndex 2) -1)
         (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 2)))
         (not (eqv? '- (vector-ref (vector-ref board rowIndex) (- colIndex 1))))
       )
-      (append movesList (list (list (list colIndex rowIndex) (list (- colIndex 2) rowIndex))))
+      (append-move-left board (- colIndex 2) rowIndex origCol origRow (append movesList (list (list (list origCol origRow) (list (- colIndex 2) rowIndex)))))
       movesList
     )
   )
