@@ -8,32 +8,22 @@
 (define (avg-branch-factor)
   (/ total-branches times-branched))
 
-(define (evaluate board whose-turn)
+(define (evaluate board whose-turn us opp)
   (set! eval-count (+ eval-count 1))
   (cond
-    ((= (number-moveable board 'o 0 0) 0)
+    ((= (number-moveable board opp 0 0) 0)
      100)
-    ((= (number-moveable board 'x 0 0) 0)
+    ((= (number-moveable board us 0 0) 0)
      0)
-    (else (/ (number-moveable board 'x 0 0)
-     (number-moveable board 'o 0 0)))))
+    (else (/ (number-moveable board us 0 0)
+     (number-moveable board opp 0 0)))))
 
-(define (leaf board whose-turn)
+(define (leaf board whose-turn us opp)
   (or
-   (and (= (number-moveable board 'o 0 0) 0) (eqv? whose-turn 'o))
-   (and (= (number-moveable board 'x 0 0) 0) (eqv? whose-turn 'x))
+   (and (= (number-moveable board opp 0 0) 0) (eqv? whose-turn opp))
+   (and (= (number-moveable board us 0 0) 0) (eqv? whose-turn us))
   )
 )
-
-(define (count-total board total)
-  (cond ((null? board) total)
-        (else (count-total (cdr board) (+ total (count (car board) 'x 0))))))
-
-(define (count line type total)
-  (cond
-    ((null? line) total)
-    ((eqv? (car line) type) (count (cdr line) type (+ total 1)))
-    (else (count (cdr line) type total))))
 
 (define (number-moveable board type rowIndex total)
   (cond ((= rowIndex 8) total)
@@ -197,14 +187,14 @@
 ;depth: how deep to go in minimax computation tree
 ;whose-turn: 'x or 'o
 (define minimax
-  (lambda (board depth whose-turn)
+  (lambda (board depth whose-turn us opp)
       (cond
-        ((leaf board whose-turn) (evaluate board whose-turn))
-        ((= depth 0) (evaluate board whose-turn))
+        ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
+        ((= depth 0) (evaluate board whose-turn us opp))
         (else
-          (if (eq? whose-turn 'X)
-              (list-max (map (lambda (b) (minimax b (- depth 1) 'O)) (child-boards board whose-turn)))
-              (list-min (map (lambda (b) (minimax b (- depth 1) 'X)) (child-boards board whose-turn)))
+          (if (eq? whose-turn us)
+              (list-max (map (lambda (b) (minimax b (- depth 1) opp us opp)) (child-boards board whose-turn)))
+              (list-min (map (lambda (b) (minimax b (- depth 1) us us opp)) (child-boards board whose-turn)))
           )
         )
       )
@@ -227,8 +217,8 @@
 ;Gives the move with the best chance of winning.
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
-(define (bestmove board depth piece)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth (if (equal? piece "X") 'o 'x)) mv)) (possible-moves board (if (equal? piece "X") 'x 'o) 0 '()))))
+(define (bestmove board depth piece us opp)
+  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth opp us opp) mv)) (possible-moves board piece 0 '()))))
 )
 
 (define (secondmovepossibilities firstmove)
@@ -257,7 +247,7 @@
 )
 
 (define (secondmovechooser board firstmove depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) depth 'o) mv))
+  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) depth 'x 'o 'x) mv))
                        (secondmovepossibilities firstmove))))
 )
 
@@ -337,13 +327,13 @@
 (define (firstmove piece)
   (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum ""))))
     (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum ""))))
-      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) piece 1))))
+      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) piece 1 'X 'O))))
 
 (define (secondmove piece)
   (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
-        (play (putpiece b (car s) (cadr s) '-) piece 2)))))
+        (play (putpiece b (car s) (cadr s) '-) piece 2 'O 'X)))))
 
 (define (init turn)
   (if (= turn 1) (firstmove "X") (secondmove "O")))
@@ -363,11 +353,11 @@
 (define (nomoves board turn)
   (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
 
-(define (play board piece turn)
+(define (play board piece turn us opp)
   (printwell board)
   (if (= turn 1)
-      (if (nomoves board (if (equal? piece "X") 'X 'O)) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4 piece))) piece 2)))
-      (if (nomoves board (if (equal? piece "X") 'O 'X)) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) piece 1)))))
+      (if (nomoves board (if (equal? piece "X") 'X 'O)) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4 us us opp))) piece 2 us opp)))
+      (if (nomoves board (if (equal? piece "X") 'O 'X)) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) piece 1 us opp)))))
 
 (if
  (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) 1 2)))
