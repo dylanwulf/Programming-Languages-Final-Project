@@ -251,8 +251,9 @@
   )
 )
 
-(define (secondmovechooser board firstmove)
-  '(3 5))
+(define (secondmovechooser board firstmove depth)
+  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) depth 'o) mv)) (secondmovepossibilities firstmove))))
+)
 
 (define (makeboard)
   (vector
