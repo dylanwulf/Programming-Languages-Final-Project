@@ -1,6 +1,4 @@
-#lang R5RS
 
-;#lang R5RS
 
 (define eval-count 0)
 (define cut-count 0)
@@ -225,11 +223,12 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy makeboard) mv) depth 'o) mv)) (possible-moves makeboard 'x 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth 'o) mv)) (possible-moves board 'x 0 '()))))
 )
 
 
-
+(define (secondmovechooser board)
+  '(3 5))
 
 (define (makeboard)
   (vector
@@ -247,21 +246,26 @@
   board)
 
 (define (printwell arr)
-  (if (vector? arr) (let ((l (vector->list arr))) (printwell l))
-                      (if (list? arr)
-                          (if (= 0 (length arr)) (display "\n") (if (printwell (car arr)) (printwell (cdr arr))))
-                          (display arr)))
+  (display (string-append "  1 2 3 4 5 6 7 8" "\n"))
+  (printweller (vector->list arr) 1))
+
+(define (printweller arr r)
+  (if (vector? arr)
+      (let ((l (vector->list arr))) (if (if (display r) (display " ")) (printweller l r)))
+      (if (list? arr)
+          (if (= 0 (length arr)) (display "\n") (if (printweller (car arr) r) (printweller (cdr arr) (+ r 1))))
+          (if (display arr) (display " "))))
   #t)
 
 (define (printmove dp)
   (display (string-append "Move piece at <"
-                          (number->string (caar dp))
+                          (number->string (+ (caar dp) 1))
                           ","
-                          (number->string (cadar dp))
+                          (number->string (+ (cadar dp) 1))
                           "> to location <"
-                          (number->string (caadr dp))
+                          (number->string (+ (caadr dp) 1))
                           ","
-                          (number->string (cadadr dp))
+                          (number->string (+ (cadadr dp) 1))
                           ">"
                           "\n"))
   dp)
@@ -290,41 +294,43 @@
                    (if (= x1 x2) vg cg)))))
 
 
-(define (firstmove thepiece)
-  (if (display (string-append "First move: " thepiece "\n")) (inputnum "1")))
+(define (firstmove piece)
+  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum ""))))
+    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum ""))))
+      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) piece 1))))
 
-(define (secondmove thepiece)
-  (if (display (string-append "Second move: " thepiece "\n")) (inputnum "2")))
+(define (secondmove piece)
+  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
+    (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
+      (let ((s (secondmovechooser b)))
+        (play (putpiece b (car s) (cadr s) '-) piece 2)))))
 
-(define (init piece1 piece2)
-  (let ((f (firstmove piece1)) (s (secondmove piece2)))
-    (let ((x1 (car f)) (y1 (cadr f)) (x2 (car s)) (y2 (cadr s)))
-      (putpiece (putpiece (makeboard) x1 y1 '-) x2 y2 '-))))
+(define (init turn)
+  (if (= turn 1) (firstmove "X") (secondmove "O")))
 
 (define (move board dp)
   (let ((p (vector-ref (vector-ref board (caar dp)) (cadar dp))))
     (putpiece (clearline board (caar dp) (cadar dp) (caadr dp) (cadadr dp)) (caadr dp) (cadadr dp) p)))
 
 (define (inputnum n)
-   (list (if (display (string-append "X" n ": ")) (read)) (if (display (string-append "Y" n ": ")) (read))))
+   (list (if (display (string-append "X" n ": ")) (- (read) 1)) (if (display (string-append "Y" n ": ")) (- (read) 1))))
 
 (define (input)
   (list
    (inputnum "1")
    (inputnum "2")))
 
-(define (nomoves board)
-  #f)
+(define (nomoves board turn)
+  (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
 
-(define (play board startpiece)
+(define (play board piece turn)
   (printwell board)
-  (if (equal? startpiece "X")
-      (if (nomoves board) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4))) "O")))
-      (if (nomoves board) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) "X")))))
+  (if (= turn 1)
+      (if (nomoves board (if (equal? piece "X") 'X 'O)) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4))) piece 2)))
+      (if (nomoves board (if (equal? piece "X") 'O 'X)) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) piece 1)))))
 
 (if
- (let ((piece1 (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) "X" "O")))
-   (let ((piece2 (if (equal? piece1 "X") "O" "X")))
-     (play (init piece1 piece2) piece1)))
-    (display "You won!")
-    (display "You lost."))
+ (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) 1 2)))
+   (init turn))
+ (display "You won!")
+ (display "You lost."))
