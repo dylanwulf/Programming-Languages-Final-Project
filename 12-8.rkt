@@ -223,7 +223,7 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy makeboard) mv) depth 'o) mv)) (possible-moves makeboard 'x 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth 'o) mv)) (possible-moves board 'x 0 '()))))
 )
 
 
@@ -295,13 +295,13 @@
 (define (firstmove)
   (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum ""))))
     (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum ""))))
-      (play (putpiece (putpiece (makeboard) (car f) (cadr f) "-") (car s) (cadr s) "-") "X"))))
+      (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) "X"))))
 
 (define (secondmove)
   (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
-    (let ((b (putpiece (makeboard) (car f) (cadr f) "-")))
+    (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (secondmovechooser b)))
-        (play (putpiece b (car s) (cadr s) "-") "O")))))
+        (play (putpiece b (car s) (cadr s) '-) "O")))))
 
 (define (init piece1)
   (if (equal? piece1 "X") (firstmove) (secondmove)))
@@ -319,14 +319,14 @@
    (inputnum "2")))
 
 (define (nomoves board turn)
-  #f)
-  ;(if (= (length (possible-moves board turn 0 '())) 0) #t #f))
+  ;#f)
+  (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
 
 (define (play board startpiece)
   (printwell board)
   (if (equal? startpiece "X")
-      (if (nomoves board "X") #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4))) "O")))
-      (if (nomoves board "O") #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) "X")))))
+      (if (nomoves board 'x) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4))) "O")))
+      (if (nomoves board 'o) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) "X")))))
 
 (if
  (let ((piece1 (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) "X" "O")))
