@@ -349,12 +349,12 @@
 
 
 (define (firstmove)
-  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum ""))))
-    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum ""))))
+  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum "" "firstmove"))))
+    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum "" "firstmove"))))
       (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
 (define (secondmove)
-  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum ""))))
+  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum "" "secondmove"))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
         (play (putpiece b (car s) (cadr s) '-) 2 'O 'X)))))
@@ -366,17 +366,23 @@
   (let ((p (vector-ref (vector-ref board (cadar dp)) (caar dp))))
     (putpiece (clearline board (caar dp) (cadar dp) (caadr dp) (cadadr dp)) (caadr dp) (cadadr dp) p)))
 
-(define (inputnum n)
-   (list (if (display (string-append "X" n ": ")) (- (read) 1)) (if (display (string-append "Y" n ": ")) (- 8 (read)))))
+(define (inputnum n caller)
+   (list (cond
+           ((display (string-append "X" n ": "))
+            (let ((input (read)))
+              (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller) (- input 1)))))
+         (cond
+           ((display (string-append "Y" n ": "))
+            (let ((input (read)))
+              (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller) (- 8 input)))))))
 
-;Prints an error message if the given input is not on board.
-(define (check-invalid-input)
-  (let ((input (read)))
-    (if (or (< input 1) (> input 8))
-       (handle-error))))
-
-(define (handle-error)
-  (display "Invalid move. Values must be from 1 to 8.")(newline))
+(define (index-out-of-bounds n caller)
+  (display "Invalid move. Values must be from 1 to 8.")(newline)
+  (cond
+    ((eqv? "secondmove" caller) (secondmove))
+    ((eqv? "firstmove" caller) (firstmove))
+    ;((eqv? "input" caller) (input))
+    ))
 
 ;Prints an error message if the given input is not a valid first move.
 (define (first-move-check)
@@ -396,8 +402,8 @@
 
 (define (input)
   (list
-   (inputnum "1")
-   (inputnum "2")))
+   (inputnum "1" "input")
+   (inputnum "2" "input")))
 
 (define (nomoves board turn)
   (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
