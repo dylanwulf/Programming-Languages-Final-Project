@@ -1,7 +1,7 @@
 (define eval-count 0)
 (define cut-count 0)
 (define total-branches 0)
-(define times-branched 1)
+(define times-branched 0)
 
 (define (flatten x)
   (cond ((null? x) '())
@@ -255,6 +255,7 @@
 
 (define max-child
   (lambda (child-boards depth whose-turn us opp v imax)
+    (set! total-branches (+ total-branches 1))
     (if (> v imax)
         (if (set! cut-count (+ cut-count 1)) imax imax)
         (if (= (length child-boards) 0)
@@ -267,6 +268,7 @@
 
 (define min-child
   (lambda (child-boards depth whose-turn us opp imin v)
+    (set! total-branches (+ total-branches 1))
     (if (< v imin)
         (if (set! cut-count (+ cut-count 1)) imin imin)
         (if (= (length child-boards) 0)
@@ -279,6 +281,8 @@
 
 (define minimax-alpha-beta
   (lambda (board depth whose-turn us opp imin imax)
+    (set! times-branched (+ times-branched 1))
+    (set! total-branches (+ total-branches 1))
     (cond
         ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
         ((= depth 0) (evaluate board whose-turn us opp))
