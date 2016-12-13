@@ -482,15 +482,9 @@
       ((contains (map integer? (flatten input)) #f)
        (not-integer board turn us opp))
       ((or (< (list-min (flatten input)) 0) (> (list-max (flatten input)) 7))
-<<<<<<< HEAD
        (bad-index board turn us opp))
       ((not (contains (possible-moves board opp 0 '()) input))
        (not-possible board turn us opp))
-=======
-       ((display "Invalid move. Values must be from 1 to 8.") (newline) (play board turn us opp)))
-      ((not (contains (possible-moves board opp 0 '()) input))
-       ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp)))
->>>>>>> 0d353533a1cf6fd34f33578f3f693f61bb4c09ba
       (else (move board input)))))
 
 (define (not-possible board turn us opp)
