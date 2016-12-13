@@ -16,8 +16,8 @@ algorithm with Alpha-Beta pruning. For each game, our program also provides the
 following information:
 
   1. The number of times a static evaluation was done.
-  2. The average branching factor.
-  3. The number of cut offs that took place.
+  2. The number of cut offs that took place.
+  3. The average branching factor. 
 
 ================ How to Run ================
 
