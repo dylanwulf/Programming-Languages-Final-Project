@@ -1,7 +1,7 @@
 (define eval-count 0)
 (define cut-count 0)
 (define total-branches 0)
-(define times-branched 0)
+(define times-branched 1)
 
 (define (flatten x)
   (cond ((null? x) '())
@@ -22,7 +22,7 @@
   (display "Statistics:")(newline)
   (display "1. Number of evaluations: ")(display eval-count)(newline)
   (display "2. Number of cuts: ")(display cut-count)(newline)
-  (display "3. Average branch factor: ")(display avg-branch-factor)(newline))
+  (display "3. Average branch factor: ")(display (avg-branch-factor))(newline))
 
 ;Returns average branching factor
 (define (avg-branch-factor)
@@ -254,38 +254,38 @@
 )
 
 (define max-child
-  (lambda (child-boards depth whose-turn us opp v max)
-    (if (> v max)
-        max
+  (lambda (child-boards depth whose-turn us opp v imax)
+    (if (> v imax)
+        imax
         (if (= (length child-boards) 0)
             v
-            (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v max)) max)
+            (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v imax)) imax)
         )
     )
   )
 )
 
 (define min-child
-  (lambda (child-boards depth whose-turn us opp min v)
-    (if (< v min)
-        min
+  (lambda (child-boards depth whose-turn us opp imin v)
+    (if (< v imin)
+        imin
         (if (= (length child-boards) 0)
             v
-            (min-child (cdr child-boards) depth whose-turn us opp min (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp min v)))
+            (min-child (cdr child-boards) depth whose-turn us opp imin (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp imin v)))
         )
     )
   )
 )
 
 (define minimax-alpha-beta
-  (lambda (board depth whose-turn us opp min max)
+  (lambda (board depth whose-turn us opp imin imax)
     (cond
         ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
         ((= depth 0) (evaluate board whose-turn us opp))
         (else
           (if (eq? whose-turn us)
-              (max-child (child-boards board whose-turn) depth whose-turn us opp min max)
-              (min-child (child-boards board whose-turn) depth whose-turn us opp min max)
+              (max-child (child-boards board whose-turn) depth whose-turn us opp imin imax)
+              (min-child (child-boards board whose-turn) depth whose-turn us opp imin imax)
           )
         )
       )
@@ -296,7 +296,7 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth piece us opp)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) (- depth 1) opp us opp) mv)) (possible-moves board piece 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (move (board-copy board) mv) (- depth 1) opp us opp 0 100) mv)) (possible-moves board piece 0 '()))))
 )
 
 (define (secondmovepossibilities firstmove)
@@ -325,7 +325,7 @@
 )
 
 (define (secondmovechooser board firstmove depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x) mv))
+  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x 0 100) mv))
                        (secondmovepossibilities firstmove))))
 )
 
@@ -471,7 +471,7 @@
   (if (= turn 1)
       (if (nomoves board us) #f
           (if (display (string-append "Our Turn: " "\n"))
-              (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
+              (play (move board (printmove (bestmove board 5 us us opp))) 2 us opp)))
       (if (nomoves board opp) #t
           (if (display (string-append "Opponent's Turn: " "\n"))
               (play (verify-move board turn us opp) 1 us opp)))))
@@ -482,9 +482,15 @@
       ((contains (map integer? (flatten input)) #f)
        (not-integer board turn us opp))
       ((or (< (list-min (flatten input)) 0) (> (list-max (flatten input)) 7))
+<<<<<<< HEAD
        (bad-index board turn us opp))
       ((not (contains (possible-moves board opp 0 '()) input))
        (not-possible board turn us opp))
+=======
+       ((display "Invalid move. Values must be from 1 to 8.") (newline) (play board turn us opp)))
+      ((not (contains (possible-moves board opp 0 '()) input))
+       ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp)))
+>>>>>>> 0d353533a1cf6fd34f33578f3f693f61bb4c09ba
       (else (move board input)))))
 
 (define (not-possible board turn us opp)
