@@ -22,22 +22,22 @@ following information:
 ================ How to Run ================
 
 To run this project, open the file "PL Final.rkt" using DrRacket. Next, press
-the keys Ctrl+R on a Windows/Linux machine and Cmd+R on an OS X machine. Next,
-enter moves into the prompt and view the computer's response. Continue to do
-this until either player has won.
+the keys Ctrl+R on a Windows/Linux machine and Cmd+R on an OS X machine. Type in
+"Yes" if the computer is going first and "No" if the computer is going second.
+Next, enter moves into the prompt and view the computer's response. Continue to
+do this until either player has won.
 
 ================ Input Format ================
 
-To input moves, type in first the x coordinate, then the y coordinate of the
-move that was made.
+To enter pieces to be removed at game start, enter the x and y coordinates of
+the piece to be removed. To enter moves, type in first the x coordinate, then
+the y coordinate of the piece that is moving, then the x and y coordinate of
+where it should be going.
 
 ================ Bugs ================
 
-Currently, there are a number of bugs in the code. First of all, moving a piece
-to the left doesn't properly mark the previous space as empty. Next, the
-Alpha-Beta pruning does not work at all, yet. Additionally, the second move of
-the game does not use the Minimax evaluation function. Finally, error handling
-is completely nonexistent.
+There are no bugs in our program. All errors that we could think of were
+handled, and the game itself plays perfectly with correct input.
 
 ================ Data Structures ================
 
