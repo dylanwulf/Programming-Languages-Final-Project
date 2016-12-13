@@ -346,7 +346,7 @@
 
 (define (printwell arr)
   (display (string-append "  1 2 3 4 5 6 7 8" "\n"))
-  (printweller (vector->list arr) 8))
+  (if (eqv? arr #t) (win) (printweller (vector->list arr) 8)))
 
 (define (printweller arr r)
   (if (vector? arr)
@@ -471,7 +471,7 @@
   (if (= turn 1)
       (if (nomoves board us) #f
           (if (display (string-append "Our Turn: " "\n"))
-              (play (move board (printmove (bestmove board 5 us us opp))) 2 us opp)))
+              (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
       (if (nomoves board opp) #t
           (if (display (string-append "Opponent's Turn: " "\n"))
               (play (verify-move board turn us opp) 1 us opp)))))
@@ -488,13 +488,13 @@
       (else (move board input)))))
 
 (define (not-possible board turn us opp)
-  ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp)))
+  (display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp))
 
 (define (bad-index board turn us opp)
-  ((display "Invalid entry. Values must be from 1 to 8.") (newline) (play board turn us opp)))
+  (display "Invalid entry. Values must be from 1 to 8.") (newline) (play board turn us opp))
 
 (define (not-integer board turn us opp)
-  ((display "Invalid entry. Input values must be integers from 1 to 8.")(newline) (play board turn us opp)))
+  (display "Invalid entry. Input values must be integers from 1 to 8.")(newline) (play board turn us opp))
 
 (define (check-yes-or-no)
   (let ((answer (read)))

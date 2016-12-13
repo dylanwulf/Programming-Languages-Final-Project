@@ -29,12 +29,15 @@ do this until either player has won.
 
 ================ Input Format ================
 
-To enter moves, type in first the x coordinate, then the y coordinate of the
-move that was made.
+To enter pieces to be removed at game start, enter the x and y coordinates of
+the piece to be removed. To enter moves, type in first the x coordinate, then
+the y coordinate of the piece that is moving, then the x and y coordinate of
+where it should be going.
 
 ================ Bugs ================
 
-Currently, there are no bugs in our program. 
+There are no bugs in our program. All errors that we could think of were
+handled, and the game itself plays perfectly with correct input.
 
 ================ Data Structures ================
 
