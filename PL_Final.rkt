@@ -259,6 +259,7 @@
   )
 )
 
+;Loops through a list of child boards and finds the maximized score
 (define max-child
   (lambda (child-boards depth whose-turn us opp v imax iter)
     (if (> v imax)
@@ -271,6 +272,7 @@
   )
 )
 
+;Loops through a list of child boards and finds the minimized score
 (define min-child
   (lambda (child-boards depth whose-turn us opp imin v iter)
     (if (< v imin)
@@ -283,6 +285,8 @@
   )
 )
 
+;The minimax algorithm which is defined above, but this version has
+;alpha-beta pruning.
 (define minimax-alpha-beta
   (lambda (board depth whose-turn us opp imin imax)
     (cond
@@ -302,7 +306,7 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth piece us opp)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) (- depth 1) opp us opp) mv)) (possible-moves board piece 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (move (board-copy board) mv) (- depth 1) opp us opp 0 100) mv)) (possible-moves board piece 0 '()))))
 )
 
 (define (secondmovepossibilities firstmove)
@@ -331,7 +335,7 @@
 )
 
 (define (secondmovechooser board firstmove depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x) mv))
+  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x 0 100) mv))
                        (secondmovepossibilities firstmove))))
 )
 
@@ -355,7 +359,7 @@
 ;Prints the board to the console
 (define (printwell arr)
   (display (string-append "  1 2 3 4 5 6 7 8" "\n"))
-  (if (eqv? arr #t) (win) (printweller (vector->list arr) 8)))
+  (if (eqv? arr #t) (win) (if (eqv? arr #f) (lose) (printweller (vector->list arr) 8))))
 
 ;Helper function for printing board to console
 (define (printweller arr r)
@@ -415,13 +419,15 @@
 
 ;If the computer goes first, asks the computer player for input, then the opponent player for input
 (define (firstmove)
-  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum "" "firstmove" #t))))
-    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum "" "firstmove" #f))))
+  (display "You are O!") (newline)
+  (let ((f (if (display (string-append "Please tell me where I should move first (I can decide for myself after this): " "\n")) (inputnum "" "firstmove" #t))))
+    (let ((s (if (display (string-append "Your second move: " "\n")) (inputnum "" "firstmove" #f))))
       (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
 ;If the computer goes second, asks for the opponent players first move, then the computer removes an adjacent piece
 (define (secondmove)
-  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum "" "secondmove" #t))))
+  (display "You are X!") (newline)
+  (let ((f (if (display (string-append "Your first move: " "\n")) (inputnum "" "secondmove" #t))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
         (play (putpiece b (car s) (cadr s) '-) 2 'O 'X)))))
@@ -490,10 +496,10 @@
   (printwell board)
   (if (= turn 1)
       (if (nomoves board us) #f
-          (if (display (string-append "Our Turn: " "\n"))
+          (if (display (string-append "My Turn: " "\n"))
               (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
       (if (nomoves board opp) #t
-          (if (display (string-append "Opponent's Turn: " "\n"))
+          (if (display (string-append "Your Turn: " "\n"))
               (play (verify-move board turn us opp) 1 us opp)))))
 
 ;Checks that the given move only uses integers. only uses integers that are on the board, and only uses a possible move
@@ -536,7 +542,7 @@
 ;Runs the entire game from the start to end
 (define (play-game)
   (if
-   (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
+   (let ((turn (if (equal? (if (display "Do I start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
      (init turn))
    (win)
    (lose)))

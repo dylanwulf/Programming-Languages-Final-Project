@@ -21,7 +21,7 @@ following information:
 
 ================ How to Run ================
 
-To run this project, open the file "PL_Final.rkt" using DrRacket. Select the R5RS language
+To run this project, open the file "PL_Final.rkt" using DrRacket version 6.7. Select the R5RS language
 in the list of languages. Next, press the keys Ctrl+R on a Windows/Linux machine 
 or Cmd+R on an OS X machine. Type in "Yes" if the computer is going first or
 "No" if the computer is going second. Next, enter moves into the prompt and view the 
@@ -37,10 +37,10 @@ where it should be going.
 ================ Bugs ================
 
 All errors that we could think of were handled, and the game itself plays
-perfectly with correct input. However, occasionally, after a game is complete,
-an error message occurs. As this does not impact the ability to play the game,
-and it usually doesn't happen, we decided that it was not an important bug to
-fix.
+perfectly with correct input. One issue is that the computer is not able to decide
+the very first move by itself. If the computer is going first, the user must input its first
+move for it. We were going to have the computer choose a random move for its first move,
+but R5RS does not have any sort of random functionality.
 
 ================ Data Structures ================
 
@@ -62,6 +62,7 @@ minimum node to be higher than an already-explored branch's minimum. If not,
 then the branch can be 'pruned' - no longer searched.
 
 ================ Depth and Alpha-Beta Pruning Results ================
+Please see file Plots.pdf for visual graphs of this data
 
 Our results were:
 
