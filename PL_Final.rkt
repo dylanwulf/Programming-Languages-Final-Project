@@ -256,7 +256,7 @@
 (define max-child
   (lambda (child-boards depth whose-turn us opp v imax)
     (if (> v imax)
-        imax
+        (if (set! cut-count (+ cut-count 1)) imax imax)
         (if (= (length child-boards) 0)
             v
             (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v imax)) imax)
@@ -268,7 +268,7 @@
 (define min-child
   (lambda (child-boards depth whose-turn us opp imin v)
     (if (< v imin)
-        imin
+        (if (set! cut-count (+ cut-count 1)) imin imin)
         (if (= (length child-boards) 0)
             v
             (min-child (cdr child-boards) depth whose-turn us opp imin (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp imin v)))
