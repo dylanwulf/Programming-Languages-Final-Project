@@ -66,12 +66,12 @@ Our results were:
 
 Minimax without Alpha-Beta Pruning
 
-  Depth 1:
-  Depth 2:
-  Depth 3:
-  Depth 4:
-  Depth 5:
-  Depth 6:
+  Depth 1: evaluations: 630, cuts: 0 Avg branch factor: 5.4
+  Depth 2: evaluations: 1439, cuts: 0, Avg. branch factor: 5.2
+  Depth 3: evaluations: 17108, cuts: 0, Avg. branch factor: 13.3
+  Depth 4: evaluations: 193060, cuts: 0, Avg. branch factor: 9.1
+  Depth 5: evaluations: 1597450, cuts: 0, Avg. branch factor: 13.4
+  Depth 6: evaluations: 21549265, cuts: 0, Avg. branch factor: 9.2
 
 Minimax with Alpha-Beta Pruning
 
