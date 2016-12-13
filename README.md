@@ -21,7 +21,7 @@ following information:
 
 ================ How to Run ================
 
-To run this project, open the file "PL Final.rkt" using DrRacket. Next, press
+To run this project, open the file "PL_Final.rkt" using DrRacket. Next, press
 the keys Ctrl+R on a Windows/Linux machine and Cmd+R on an OS X machine. Type in
 "Yes" if the computer is going first and "No" if the computer is going second.
 Next, enter moves into the prompt and view the computer's response. Continue to
@@ -36,8 +36,10 @@ where it should be going.
 
 ================ Bugs ================
 
-There are no bugs in our program. All errors that we could think of were
-handled, and the game itself plays perfectly with correct input.
+All errors that we could think of were handled, and the game itself plays
+perfectly with correct input. However, occasionally, after a game is complete,
+an error message occurs. As this does not impact the ability to play the game,
+we did not find it to have any detrimental impact on the game.
 
 ================ Data Structures ================
 

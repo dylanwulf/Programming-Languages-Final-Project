@@ -3,15 +3,18 @@
 (define total-branches 0)
 (define times-branched 0)
 
+;Remove excess parentheses from a list.
 (define (flatten x)
   (cond ((null? x) '())
         ((pair? x) (append (flatten (car x)) (flatten (cdr x))))
         (else (list x))))
 
+;Display end-of-game statistics and inform the player that the computer has won.
 (define (win)
   (display "We won!")
   (display-statistics))
 
+;Display end-of-game statistics and inform the player that the computer has lost.
 (define (lose)
   (display "We lost.")
   (display-statistics))
@@ -333,6 +336,7 @@
                        (secondmovepossibilities firstmove))))
 )
 
+;Creates the set-up of the board at game start
 (define (makeboard)
   (vector
      (list->vector '(X O X O X O X O))
@@ -344,14 +348,17 @@
      (list->vector '(X O X O X O X O))
      (list->vector '(O X O X O X O X))))
 
+;Updates the location of a piece at an x-y coordinate
 (define (putpiece board x y p)
   (vector-set! (vector-ref board y) x p)
   board)
 
+;Prints the board to the console
 (define (printwell arr)
   (display (string-append "  1 2 3 4 5 6 7 8" "\n"))
   (if (eqv? arr #t) (win) (printweller (vector->list arr) 8)))
 
+;Helper function for printing board to console
 (define (printweller arr r)
   (if (vector? arr)
       (let ((l (vector->list arr))) (if (if (display r) (display " ")) (printweller l r)))
@@ -360,6 +367,7 @@
           (if (display arr) (display " "))))
   #t)
 
+;Prints out the move that was just performed by the computer.
 (define (printmove dp)
   (display (string-append "Move piece at <"
                           (number->string (+ (caar dp) 1))
@@ -373,6 +381,7 @@
                           "\n"))
   dp)
 
+;Prints out the piece removed by the computer if the computer goes 2nd.
 (define (printinitmove m)
   (display (string-append "Remove piece at <"
                           (number->string (+ (car m) 1))
@@ -405,25 +414,29 @@
                    (if (= x1 x2) cg vg)
                    (if (= x1 x2) vg cg)))))
 
-
+;If the computer goes first, asks the computer player for input, then the opponent player for input
 (define (firstmove)
   (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum "" "firstmove" #t))))
     (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum "" "firstmove" #f))))
       (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
+;If the computer goes second, asks for the opponent players first move, then the computer removes an adjacent piece
 (define (secondmove)
   (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum "" "secondmove" #t))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
         (play (putpiece b (car s) (cadr s) '-) 2 'O 'X)))))
 
+;Initiates the game based on which player goes first
 (define (init turn)
   (if (= turn 1) (firstmove) (secondmove)))
 
+;Performs the given move onto the board
 (define (move board dp)
   (let ((p (vector-ref (vector-ref board (cadar dp)) (caar dp))))
     (putpiece (clearline board (caar dp) (cadar dp) (caadr dp) (cadadr dp)) (caadr dp) (cadadr dp) p)))
 
+;Asks the user for input and reads the input, performing a series of checks for valid input
 (define (inputnum n caller is-first-move)
   (list (cond
           ((display (string-append "X" n ": "))
@@ -442,6 +455,7 @@
                          (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- 8 input))))
                  (if (integer? input) (- 8 input) input)))))))
 
+;Prints an error message if the given input is not an integer and prompts the user for new input
 (define (non-integer-value caller)
   (display "Invalid entry. Values must be integers from 1 to 8.")(newline)
   (cond
@@ -462,14 +476,17 @@
     ((eqv? "secondmove" caller) (secondmove))
     ((eqv? "firstmove" caller) (firstmove))))
 
+;Combines both coordinate pairs of a move into one list
 (define (input)
   (list
    (inputnum "1" "input" #f)
    (inputnum "2" "input" #f)))
 
+;Determines whether there are no possible moves on the board for a player
 (define (nomoves board turn)
   (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
 
+;Prints the board, then either performs the computer's move or asks for and performs the opponent's move
 (define (play board turn us opp)
   (printwell board)
   (if (= turn 1)
@@ -480,6 +497,8 @@
           (if (display (string-append "Opponent's Turn: " "\n"))
               (play (verify-move board turn us opp) 1 us opp)))))
 
+;Checks that the given move only uses integers. only uses integers that are on the board, and only uses a possible move
+;If everything is valid, performs the move
 (define (verify-move board turn us opp)
   (let ((input (input)))
     (cond
@@ -491,25 +510,31 @@
        (not-possible board turn us opp))
       (else (move board input)))))
 
+;Prints an error message and restarts the turn
 (define (not-possible board turn us opp)
   (display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp))
 
+;Prints an error message and restarts the turn
 (define (bad-index board turn us opp)
   (display "Invalid entry. Values must be from 1 to 8.") (newline) (play board turn us opp))
 
+;Prints an error message and restarts the turn
 (define (not-integer board turn us opp)
   (display "Invalid entry. Input values must be integers from 1 to 8.")(newline) (play board turn us opp))
 
+;If user did not enter "Yes" or "No" at game start, handles the error
 (define (check-yes-or-no)
   (let ((answer (read)))
     (if (not (or (equal? answer 'yes) (equal? answer 'no)))
         (print-incorrect-input)
         answer)))
 
+;Prints an error message and restarts the game
 (define (print-incorrect-input)
   (display "Input must either be 'Yes' or 'No'")(newline)
   (play-game))
 
+;Runs the entire game from the start to end
 (define (play-game)
   (if
    (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
