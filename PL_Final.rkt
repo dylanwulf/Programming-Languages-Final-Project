@@ -3,6 +3,11 @@
 (define total-branches 0)
 (define times-branched 0)
 
+(define (flatten x)
+  (cond ((null? x) '())
+        ((pair? x) (append (flatten (car x)) (flatten (cdr x))))
+        (else (list x))))
+
 ;displays end-of-game statistics
 (define (display-statistics)
   (display "1. Number of evaluations: ")(display eval-count)
@@ -349,12 +354,12 @@
 
 
 (define (firstmove)
-  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum "" "firstmove"))))
-    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum "" "firstmove"))))
+  (let ((f (if (display (string-append "Our first move: " "\n")) (inputnum "" "firstmove" #t))))
+    (let ((s (if (display (string-append "Their second move: " "\n")) (inputnum "" "firstmove" #f))))
       (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
 (define (secondmove)
-  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum "" "secondmove"))))
+  (let ((f (if (display (string-append "Their first move: " "\n")) (inputnum "" "secondmove" #t))))
     (let ((b (putpiece (makeboard) (car f) (cadr f) '-)))
       (let ((s (printinitmove (secondmovechooser b f 4))))
         (play (putpiece b (car s) (cadr s) '-) 2 'O 'X)))))
@@ -366,44 +371,46 @@
   (let ((p (vector-ref (vector-ref board (cadar dp)) (caar dp))))
     (putpiece (clearline board (caar dp) (cadar dp) (caadr dp) (cadadr dp)) (caadr dp) (cadadr dp) p)))
 
-(define (inputnum n caller)
-   (list (cond
-           ((display (string-append "X" n ": "))
-            (let ((input (read)))
-              (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller) (- input 1)))))
-         (cond
-           ((display (string-append "Y" n ": "))
-            (let ((input (read)))
-              (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller) (- 8 input)))))))
+(define (inputnum n caller is-first-move)
+  (list (cond
+          ((display (string-append "X" n ": "))
+           (let ((input (read)))
+             (if is-first-move
+             (if (not (integer? input)) (non-integer-value caller)
+                 (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
+                     (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- input 1))))))))
+        (cond
+          ((display (string-append "Y" n ": "))
+           (let ((input (read)))
+             (if is-first-move
+             (if (not (integer? input)) (non-integer-value caller)
+                 (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
+                     (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- 8 input))))))))))
 
-(define (index-out-of-bounds n caller)
-  (display "Invalid move. Values must be from 1 to 8.")(newline)
+(define (non-integer-value caller)
+  (display "Invalid entry. Values must be integers from 1 to 8.")(newline)
   (cond
-    ((eqv? "secondmove" caller) (secondmove))
-    ((eqv? "firstmove" caller) (firstmove))
-    ;((eqv? "input" caller) (input))
-    ))
+    ((equal? "secondmove" caller) (secondmove))
+    ((equal? "firstmove" caller) (firstmove))))
+
+;Prints an error message if the given input is not on the board.
+(define (index-out-of-bounds n caller)
+  (display "Invalid entry. Values must be from 1 to 8.")(newline)
+  (cond
+    ((equal? "secondmove" caller) (secondmove))
+    ((equal? "firstmove" caller) (firstmove))))
 
 ;Prints an error message if the given input is not a valid first move.
-(define (first-move-check)
-  (let ((input (read)))
-    (if (not (or (= input 1) (= input 8) (= input 4) (= input 5)))
-      ((display "Invalid entry. Acceptable first moves are <1, 8>, <8, 1>, <4, 5>, and <5, 4>.")(newline)))))
-
-;Prints an error message if the move made is not possible.
-(define (jump-check board whose-turn)
-  (if (not (contains (possible-moves board whose-turn 0 '()) (input)))
-      ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline))))
-
-;Prints an error message if the first question is not given yes or no.
-(define (invalid-answer)
-  (if (not (or (equal? READ 'Yes) (equal? READ 'No)))
-      (display "Invalid entry. Please enter Yes if you are the first player and No if you are the second player.")))
+(define (first-move-check caller)
+  (display "Invalid entry. Acceptable first moves are <1, 8>, <8, 1>, <4, 5>, and <5, 4>.")(newline)
+  (cond
+    ((eqv? "secondmove" caller) (secondmove))
+    ((eqv? "firstmove" caller) (firstmove))))
 
 (define (input)
   (list
-   (inputnum "1" "input")
-   (inputnum "2" "input")))
+   (inputnum "1" "input" #f)
+   (inputnum "2" "input" #f)))
 
 (define (nomoves board turn)
   (if (= (length (possible-moves board turn 0 '())) 0) #t #f))
@@ -411,11 +418,39 @@
 (define (play board turn us opp)
   (printwell board)
   (if (= turn 1)
-      (if (nomoves board us) #f (if (display (string-append "Our Turn: " "\n")) (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
-      (if (nomoves board opp) #t (if (display (string-append "Opponent's Turn: " "\n")) (play (move board (input)) 1 us opp)))))
+      (if (nomoves board us) #f
+          (if (display (string-append "Our Turn: " "\n"))
+              (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
+      (if (nomoves board opp) #t
+          (if (display (string-append "Opponent's Turn: " "\n"))
+              (play (verify-move board turn us opp) 1 us opp)))))
 
-(if
- (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (read)) 'Yes) 1 2)))
-   (init turn))
- (display "We won!")
- (display "We lost."))
+(define (verify-move board turn us opp)
+  (let ((input (input)))
+    (cond
+      ((contains (map integer? (flatten input)) #f)
+       ((display "Invalid entry. Input values must be integers from 1 to 8.")(newline) (play board turn us opp)))
+      ((or (< (list-min (flatten input)) 0) (> (list-max (flatten input)) 7))
+       ((display "Invalid move. Values must be from 1 to 8.") (newline) (play board turn us opp)))
+      ((not (contains (possible-moves board us 0 '()) input))
+       ((display "Invalid move. Pieces have to move to empty squares and can only move by jumping orthogonal pieces.")(newline) (play board turn us opp)))
+      (else (move board input)))))
+
+(define (check-yes-or-no)
+  (let ((answer (read)))
+    (if (not (or (equal? answer 'yes) (equal? answer 'no)))
+        (print-incorrect-input)
+        answer)))
+
+(define (print-incorrect-input)
+  (display "Input must either be 'Yes' or 'No'")(newline)
+  (play-game))
+
+(define (play-game)
+  (if
+   (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
+     (init turn))
+   (display "We won!")
+   (display "We lost.")))
+
+(play-game)
