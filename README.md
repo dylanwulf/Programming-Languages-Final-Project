@@ -21,11 +21,11 @@ following information:
 
 ================ How to Run ================
 
-To run this project, open the file "PL_Final.rkt" using DrRacket. Next, press
-the keys Ctrl+R on a Windows/Linux machine and Cmd+R on an OS X machine. Type in
-"Yes" if the computer is going first and "No" if the computer is going second.
-Next, enter moves into the prompt and view the computer's response. Continue to
-do this until either player has won.
+To run this project, open the file "PL_Final.rkt" using DrRacket. Select the R5RS language
+in the list of languages. Next, press the keys Ctrl+R on a Windows/Linux machine 
+or Cmd+R on an OS X machine. Type in "Yes" if the computer is going first or
+"No" if the computer is going second. Next, enter moves into the prompt and view the 
+computer's response. Continue to do this until either player has won.
 
 ================ Input Format ================
 
@@ -56,8 +56,8 @@ We used a minimax algorithm, which tries to find the best possible move by
 comparing all of the possible outcomes 3 moves out. It uses a static evaluation
 function which returns a ratio of the number of computer player moveable pieces
 by the number of opponent's moveable pieces. Our research indicated that this
-evaluation function yielded the highest chance of success. Finally, the
-Alpha-Beta pruning algorithm determined whether it was possible for a branch's
+evaluation function yielded the highest chance of success (see page 13 of http://cs.brynmawr.edu/Theses/Thompson.pdf)
+Finally, the Alpha-Beta pruning algorithm determined whether it was possible for a branch's
 minimum node to be higher than an already-explored branch's minimum. If not,
 then the branch can be 'pruned' - no longer searched.
 
