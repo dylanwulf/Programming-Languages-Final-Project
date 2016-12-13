@@ -488,7 +488,7 @@
   (if (= turn 1)
       (if (nomoves board us) #f
           (if (display (string-append "Our Turn: " "\n"))
-              (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
+              (play (move board (printmove (bestmove board 1 us us opp))) 2 us opp)))
       (if (nomoves board opp) #t
           (if (display (string-append "Opponent's Turn: " "\n"))
               (play (verify-move board turn us opp) 1 us opp)))))

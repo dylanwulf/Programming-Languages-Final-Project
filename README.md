@@ -39,7 +39,8 @@ where it should be going.
 All errors that we could think of were handled, and the game itself plays
 perfectly with correct input. However, occasionally, after a game is complete,
 an error message occurs. As this does not impact the ability to play the game,
-we did not find it to have any detrimental impact on the game.
+and it usually doesn't happen, we decided that it was not an important bug to
+fix.
 
 ================ Data Structures ================
 
@@ -66,21 +67,39 @@ Our results were:
 
 Minimax without Alpha-Beta Pruning
 
-  Depth 1:
-  Depth 2:
-  Depth 3:
-  Depth 4:
-  Depth 5:
-  Depth 6:
+Depth 1:
+Depth 2:
+Depth 3:
+Depth 4:
+Depth 5:
+Depth 6:
 
 Minimax with Alpha-Beta Pruning
 
-  Depth 1:
-  Depth 2:
-  Depth 3:
-  Depth 4:
-  Depth 5:
-  Depth 6:
+Depth 1:
+  Number of evaluations: 176
+  Number of cuts: 2
+  Average branch factor: 13/5 ~= 2.6
+Depth 2:
+  Number of evaluations: 698
+  Number of cuts: 2
+  Average branch factor: 703/194 ~= 3.62
+Depth 3:
+  Number of evaluations: 5809
+  Number of cuts: 695
+  Average branch factor: 1730/317 ~= 5.46
+Depth 4:
+  Number of evaluations: 45155
+  Number of cuts: 8779
+  Average branch factor: 58934/13977 ~= 4.22
+Depth 5:
+  Number of evaluations: 864093
+  Number of cuts: 92718
+  Average branch factor: 1022379/158462 ~= 6.46
+Depth 6:
+  Number of evaluations: 2972575
+  Number of cuts: 917364
+  Average branch factor: 4178495/1206184 ~= 3.46
 
   ================ Analysis of Depth and Alpha-Beta Pruning  ================
 
