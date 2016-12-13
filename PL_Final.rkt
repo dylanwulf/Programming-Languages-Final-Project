@@ -253,6 +253,45 @@
   )
 )
 
+(define max-child
+  (lambda (child-boards depth whose-turn us opp v max)
+    (if (> v max)
+        max
+        (if (= (length child-boards) 0)
+            v
+            (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v max)) max)
+        )
+    )
+  )
+)
+
+(define min-child
+  (lambda (child-boards depth whose-turn us opp min v)
+    (if (< v min)
+        min
+        (if (= (length child-boards) 0)
+            v
+            (min-child (cdr child-boards) depth whose-turn us opp min (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp min v)))
+        )
+    )
+  )
+)
+
+(define minimax-alpha-beta
+  (lambda (board depth whose-turn us opp min max)
+    (cond
+        ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
+        ((= depth 0) (evaluate board whose-turn us opp))
+        (else
+          (if (eq? whose-turn us)
+              (max-child (child-boards board whose-turn) depth whose-turn us opp min max)
+              (min-child (child-boards board whose-turn) depth whose-turn us opp min max)
+          )
+        )
+      )
+  )
+)
+
 ;Gives the move with the best chance of winning.
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
