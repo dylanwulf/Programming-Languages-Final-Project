@@ -1,3 +1,10 @@
+;Programming Languages Final Project: Konane Implementation using minimax algorithm with alpha-beta pruning
+;December 12, 2016
+;Dylan Wulf
+;David Shull
+;Fernando Faria
+
+;Global constants to keep track of statistics
 (define eval-count 0)
 (define cut-count 0)
 (define total-branches 0)
@@ -11,12 +18,12 @@
 
 ;Display end-of-game statistics and inform the player that the computer has won.
 (define (win)
-  (display "We won!")
+  (display "I won!")
   (display-statistics))
 
 ;Display end-of-game statistics and inform the player that the computer has lost.
 (define (lose)
-  (display "We lost.")
+  (display "I lost. You won!")
   (display-statistics))
 
 ;displays end-of-game statistics
@@ -309,6 +316,7 @@
   (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (move (board-copy board) mv) (- depth 1) opp us opp 0 100) mv)) (possible-moves board piece 0 '()))))
 )
 
+;Finds all possible moves for the second move
 (define (secondmovepossibilities firstmove)
   (append
     (if (> (car firstmove) 0)
@@ -334,6 +342,7 @@
   )
 )
 
+;Finds the best possible move for the second move
 (define (secondmovechooser board firstmove depth)
   (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x 0 100) mv))
                        (secondmovepossibilities firstmove))))
@@ -359,7 +368,7 @@
 ;Prints the board to the console
 (define (printwell arr)
   (display (string-append "  1 2 3 4 5 6 7 8" "\n"))
-  (if (eqv? arr #t) (win) (if (eqv? arr #f) (lose) (printweller (vector->list arr) 8))))
+  (printweller (vector->list arr) 8))
 
 ;Helper function for printing board to console
 (define (printweller arr r)
@@ -421,7 +430,7 @@
 (define (firstmove)
   (display "You are O!") (newline)
   (let ((f (if (display (string-append "Please tell me where I should move first (I can decide for myself after this): " "\n")) (inputnum "" "firstmove" #t))))
-    (let ((s (if (display (string-append "Your second move: " "\n")) (inputnum "" "firstmove" #f))))
+    (let ((s (if (display (string-append "Your move: " "\n")) (inputnum "" "firstmove" #f))))
       (play (putpiece (putpiece (makeboard) (car f) (cadr f) '-) (car s) (cadr s) '-) 1 'X 'O))))
 
 ;If the computer goes second, asks for the opponent players first move, then the computer removes an adjacent piece
@@ -500,7 +509,7 @@
               (play (move board (printmove (bestmove board 4 us us opp))) 2 us opp)))
       (if (nomoves board opp) #t
           (if (display (string-append "Your Turn: " "\n"))
-              (play (verify-move board turn us opp) 1 us opp)))))
+              (verify-move board turn us opp)))))
 
 ;Checks that the given move only uses integers. only uses integers that are on the board, and only uses a possible move
 ;If everything is valid, performs the move
@@ -513,7 +522,7 @@
        (bad-index board turn us opp))
       ((not (contains (possible-moves board opp 0 '()) input))
        (not-possible board turn us opp))
-      (else (move board input)))))
+      (else (play (move board input) 1 us opp)))))
 
 ;Prints an error message and restarts the turn
 (define (not-possible board turn us opp)
@@ -542,7 +551,7 @@
 ;Runs the entire game from the start to end
 (define (play-game)
   (if
-   (let ((turn (if (equal? (if (display "Do I start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
+   (let ((turn (if (equal? (if (display "Do I (the computer) start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
      (init turn))
    (win)
    (lose)))
