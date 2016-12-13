@@ -8,11 +8,21 @@
         ((pair? x) (append (flatten (car x)) (flatten (cdr x))))
         (else (list x))))
 
+(define (win)
+  (display "We won!")
+  (display-statistics))
+
+(define (lose)
+  (display "We lost.")
+  (display-statistics))
+
 ;displays end-of-game statistics
 (define (display-statistics)
-  (display "1. Number of evaluations: ")(display eval-count)
-  (display "2. Number of cuts: ")(display cut-count)
-  (display "3. Average branch factor: ")(display avg-branch-factor))
+  (newline)
+  (display "Statistics:")(newline)
+  (display "1. Number of evaluations: ")(display eval-count)(newline)
+  (display "2. Number of cuts: ")(display cut-count)(newline)
+  (display "3. Average branch factor: ")(display avg-branch-factor)(newline))
 
 ;Returns average branching factor
 (define (avg-branch-factor)
@@ -376,16 +386,18 @@
           ((display (string-append "X" n ": "))
            (let ((input (read)))
              (if is-first-move
-             (if (not (integer? input)) (non-integer-value caller)
-                 (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
-                     (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- input 1))))))))
+                 (if (not (integer? input)) (non-integer-value caller)
+                     (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
+                         (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- input 1))))
+                 (- input 1)))))
         (cond
           ((display (string-append "Y" n ": "))
            (let ((input (read)))
              (if is-first-move
-             (if (not (integer? input)) (non-integer-value caller)
-                 (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
-                     (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- 8 input))))))))))
+                 (if (not (integer? input)) (non-integer-value caller)
+                     (if (or (< input 1) (> input 8)) (index-out-of-bounds n caller)
+                         (if (not (or (= input 1) (= input 8) (= input 4) (= input 5))) (first-move-check caller) (- 8 input))))
+                 (- 8 input)))))))
 
 (define (non-integer-value caller)
   (display "Invalid entry. Values must be integers from 1 to 8.")(newline)
@@ -450,7 +462,7 @@
   (if
    (let ((turn (if (equal? (if (display "Do we start? ('Yes' or 'No') ") (check-yes-or-no)) 'Yes) 1 2)))
      (init turn))
-   (display "We won!")
-   (display "We lost.")))
+   (win)
+   (lose)))
 
 (play-game)
