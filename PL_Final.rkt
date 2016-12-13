@@ -234,10 +234,13 @@
         ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
         ((= depth 0) (evaluate board whose-turn us opp))
         (else
+          (let ((cboards (child-boards board whose-turn)))
+            (set! total-branches (+ total-branches (length cboards)))
+            (set! times-branched (+ times-branched 1))
           (if (eq? whose-turn us)
-              (list-max (map (lambda (b) (minimax b (- depth 1) opp us opp)) (child-boards board whose-turn)))
-              (list-min (map (lambda (b) (minimax b (- depth 1) us us opp)) (child-boards board whose-turn)))
-          )
+              (list-max (map (lambda (b) (minimax b (- depth 1) opp us opp)) cboards))
+              (list-min (map (lambda (b) (minimax b (- depth 1) us us opp)) cboards))
+          ))
         )
       )
   )
@@ -299,7 +302,7 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth piece us opp)
-  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (move (board-copy board) mv) (- depth 1) opp us opp 0 100) mv)) (possible-moves board piece 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) (- depth 1) opp us opp) mv)) (possible-moves board piece 0 '()))))
 )
 
 (define (secondmovepossibilities firstmove)
@@ -328,7 +331,7 @@
 )
 
 (define (secondmovechooser board firstmove depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax-alpha-beta (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x 0 100) mv))
+  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x) mv))
                        (secondmovepossibilities firstmove))))
 )
 
