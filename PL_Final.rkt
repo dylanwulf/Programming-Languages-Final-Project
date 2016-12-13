@@ -254,26 +254,24 @@
 )
 
 (define max-child
-  (lambda (child-boards depth whose-turn us opp v imax)
-    (set! total-branches (+ total-branches 1))
+  (lambda (child-boards depth whose-turn us opp v imax iter)
     (if (> v imax)
-        (if (set! cut-count (+ cut-count 1)) imax imax)
+        ((lambda () (set! cut-count (+ cut-count 1)) (set! total-branches (+ total-branches iter)) (set! times-branched (+ times-branched 1)) imax))
         (if (= (length child-boards) 0)
-            v
-            (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v imax)) imax)
+            ((lambda () (set! total-branches (+ total-branches iter)) (set! times-branched (+ times-branched 1)) v))
+            (max-child (cdr child-boards) depth whose-turn us opp (max v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp v imax)) imax (+ iter 1))
         )
     )
   )
 )
 
 (define min-child
-  (lambda (child-boards depth whose-turn us opp imin v)
-    (set! total-branches (+ total-branches 1))
+  (lambda (child-boards depth whose-turn us opp imin v iter)
     (if (< v imin)
-        (if (set! cut-count (+ cut-count 1)) imin imin)
+        ((lambda () (set! cut-count (+ cut-count 1)) (set! total-branches (+ total-branches iter)) (set! times-branched (+ times-branched 1)) imin))
         (if (= (length child-boards) 0)
-            v
-            (min-child (cdr child-boards) depth whose-turn us opp imin (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp imin v)))
+            ((lambda () (set! total-branches (+ total-branches iter)) (set! times-branched (+ times-branched 1)) v))
+            (min-child (cdr child-boards) depth whose-turn us opp imin (min v (minimax-alpha-beta (car child-boards) (- depth 1) (if (eq? whose-turn us) opp us) us opp imin v)) (+ iter 1))
         )
     )
   )
@@ -281,15 +279,13 @@
 
 (define minimax-alpha-beta
   (lambda (board depth whose-turn us opp imin imax)
-    (set! times-branched (+ times-branched 1))
-    (set! total-branches (+ total-branches 1))
     (cond
         ((leaf board whose-turn us opp) (evaluate board whose-turn us opp))
         ((= depth 0) (evaluate board whose-turn us opp))
         (else
           (if (eq? whose-turn us)
-              (max-child (child-boards board whose-turn) depth whose-turn us opp imin imax)
-              (min-child (child-boards board whose-turn) depth whose-turn us opp imin imax)
+              (max-child (child-boards board whose-turn) depth whose-turn us opp imin imax 0)
+              (min-child (child-boards board whose-turn) depth whose-turn us opp imin imax 0)
           )
         )
       )
