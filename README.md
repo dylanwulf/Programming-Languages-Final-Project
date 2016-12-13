@@ -59,3 +59,34 @@ evaluation function yielded the highest chance of success. Finally, the
 Alpha-Beta pruning algorithm determined whether it was possible for a branch's
 minimum node to be higher than an already-explored branch's minimum. If not,
 then the branch can be 'pruned' - no longer searched.
+
+================ Depth and Alpha-Beta Pruning Results ================
+
+Our results were:
+
+Minimax without Alpha-Beta Pruning
+
+  Depth 1:
+  Depth 2:
+  Depth 3:
+  Depth 4:
+  Depth 5:
+  Depth 6:
+
+Minimax with Alpha-Beta Pruning
+
+  Depth 1:
+  Depth 2:
+  Depth 3:
+  Depth 4:
+  Depth 5:
+  Depth 6:
+
+  ================ Analysis of Depth and Alpha-Beta Pruning  ================
+
+By looking at these results, it is very clear that adding Alpha-Beta pruning
+has a great impact on the game statistics. First of all, it drastically reduces
+the number of static evaluations performed. Next, it decreases the average
+branching factor. Finally, it increases the number of cuts, since the Alpha-Beta
+pruning is what does the actual cuts. One statistic not measured, but witnessed
+by our eyes, was that the game took considerably less time when using pruning.
