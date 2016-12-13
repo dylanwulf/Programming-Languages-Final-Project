@@ -242,7 +242,7 @@
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
 (define (bestmove board depth piece us opp)
-  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) depth opp us opp) mv)) (possible-moves board piece 0 '()))))
+  (cadr (move-max (map (lambda (mv) (list (minimax (move (board-copy board) mv) (- depth 1) opp us opp) mv)) (possible-moves board piece 0 '()))))
 )
 
 (define (secondmovepossibilities firstmove)
@@ -271,7 +271,7 @@
 )
 
 (define (secondmovechooser board firstmove depth)
-  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) depth 'x 'o 'x) mv))
+  (cadr (move-max (map (lambda (mv) (list (minimax (putpiece (board-copy board) (car mv) (cadr mv) '-) (- depth 1) 'x 'o 'x) mv))
                        (secondmovepossibilities firstmove))))
 )
 
