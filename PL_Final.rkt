@@ -238,6 +238,24 @@
   )
 )
 
+(define max-child
+  (lambda (child-boards depth v max)
+    
+  )
+)
+
+(define min-child
+  (lambda (child-boards depth min v)
+    
+  )
+)
+
+(define minimax-alpha-beta
+  (lambda (board depth whose-turn us opp min max)
+    
+  )
+)
+
 ;Gives the move with the best chance of winning.
 ;Board: current game board
 ;Depth: how deep to go in the minimax computation
